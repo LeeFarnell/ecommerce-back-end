@@ -1,81 +1,84 @@
 const router = require("express").Router();
+
 const { Category, Product } = require("../../models");
 
-// The `/api/categories` endpoint
+const productAttributes = [
+  "id",
+  "product_name",
+  "price",
+  "stock",
+  "category_id",
+];
 
 router.get("/", async (req, res) => {
-  // find all categories
-  // be sure to include its associated Products
   try {
-    const allCategories = await Category.findAll({
+    const categories = await Category.findAll({
       include: [
         {
           model: Product,
-          attributes: ["id", "product_name", "price", "stock", "category_id"],
+          attributes: productAttributes,
         },
       ],
     });
-    res.status(200).json(allCategories);
+
+    res.status(200).json(categories);
   } catch (err) {
-    res.status(500).json(err);
-    console.log("Oops!");
+    console.log(err.message);
+    res.status(500).json({ error: "Failed to GET categories" });
   }
 });
 
 router.get("/:id", async (req, res) => {
-  // find one category by its `id` value
-  // be sure to include its associated Products
   try {
-    const oneCategory = await Category.findByPk(req.params.id, {
+    const category = await Category.findByPk(req.params.id, {
       include: [
         {
           model: Product,
-          attributes: ["id", "product_name", "price", "stock", "category_id"],
+          attributes: productAttributes,
         },
       ],
     });
-    res.status(200).json(oneCategory);
+
+    res.status(200).json(category);
   } catch (err) {
-    res.status(500).json(err);
-    console.log("Oops!");
+    console.log(err.message);
+    res.status(500).json({ error: "Failed to GET category" });
   }
 });
 
 router.post("/", async (req, res) => {
-  // create a new category
   try {
-    const newCategory = await Category.create(req.body);
-    res.status(200).json(newCategory);
+    const category = await Category.create(req.body);
+
+    res.status(200).json(category);
   } catch (err) {
-    res.status(500).json(err);
     console.log(err.message);
+    res.status(500).json({ error: "Failed to POST category" });
   }
 });
 
 router.put("/:id", async (req, res) => {
-  // update a category by its `id` value
   try {
-    const categoryBody = req.body;
-    const updateCategory = await Category.update(categoryBody, {
+    const category = await Category.update(req.body, {
       where: { id: req.params.id },
     });
-    res.status(200).json(updateCategory);
+
+    res.status(200).json(category);
   } catch (err) {
-    res.status(500).json(err);
     console.log(err.message);
+    res.status(500).json({ error: "Failed to PUT category" });
   }
 });
 
 router.delete("/:id", async (req, res) => {
-  // delete a category by its `id` value
   try {
-    const categoryData = await Category.destroy({
+    const category = await Category.destroy({
       where: { id: req.params.id },
     });
-    res.status(200).json(categoryData);
+    res.status(200).json(category);
   } catch (err) {
-    res.status(500).json(err);
     console.log(err.message);
+    res.status(500).json({ error: "Failed to DELETE category" });
   }
 });
 
